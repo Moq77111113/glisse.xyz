@@ -4,6 +4,7 @@ import { handleMessage } from "./handler";
 import { parseSignallingMessage, signalingMessage } from "./schema";
 import type { SignallingContext } from "./types";
 import { createWsConnection } from "./ws";
+import { connectionStateBus } from "../session/events";
 
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
@@ -52,9 +53,30 @@ export async function createSignallingApi(
       }
     };
 
+    pc.onconnectionstatechange = () => {
+      const state = pc.connectionState;
+      if (state === "connected") {
+        connectionStateBus.emit("connected");
+      } else if (state === "disconnected") {
+        connectionStateBus.emit("disconnected");
+      } else if (state === "failed") {
+        connectionStateBus.emit("failed");
+      } else if (state === "connecting" || state === "new") {
+        connectionStateBus.emit("connecting");
+      }
+    };
+
     pc.ondatachannel = (e) => {
       ctx.dataChannel = e.channel;
-      e.channel.onopen = () => resolve(api(ctx));
+
+      const checkAndResolve = () => {
+        if (e.channel.readyState === "open") {
+          resolve(api(ctx));
+        }
+      };
+
+      e.channel.onopen = checkAndResolve;
+      checkAndResolve();
     };
   });
 }

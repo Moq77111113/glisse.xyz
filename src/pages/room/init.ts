@@ -1,4 +1,4 @@
-import { joinRoom } from "~/webrtc";
+import { joinRoom, connectionStateBus } from "~/webrtc";
 import { updateStatus } from "./status";
 import { setupTextSync } from "./text";
 import { setupFileTransfer } from "./files";
@@ -12,10 +12,12 @@ async function initRoom() {
 
   updateStatus("connecting");
 
+  connectionStateBus.subscribe((state) => {
+    updateStatus(state);
+  });
+
   try {
     const session = await joinRoom(roomCode);
-
-    updateStatus("connected");
 
     setupTextSync(session);
     setupFileTransfer(session);

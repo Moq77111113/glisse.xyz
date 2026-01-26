@@ -13,7 +13,15 @@ export async function handleMessage(
     case "peer-joined":
       ctx.role = "initiator";
       ctx.dataChannel = pc.createDataChannel("data");
-      ctx.dataChannel.onopen = () => resolve(api(ctx));
+
+      const checkAndResolve = () => {
+        if (ctx.dataChannel?.readyState === "open") {
+          resolve(api(ctx));
+        }
+      };
+
+      ctx.dataChannel.onopen = checkAndResolve;
+      checkAndResolve();
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);

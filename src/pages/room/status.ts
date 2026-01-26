@@ -1,4 +1,4 @@
-type ConnectionState = "connecting" | "connected" | "failed";
+type ConnectionState = "connecting" | "connected" | "disconnected" | "failed";
 
 export function updateStatus(state: ConnectionState) {
   const indicator = document.querySelector("[data-status-indicator]");
@@ -14,6 +14,10 @@ export function updateStatus(state: ConnectionState) {
     case "connected":
       indicator.className = "size-2 rounded-full bg-primary";
       statusText.textContent = "Connected";
+      break;
+    case "disconnected":
+      indicator.className = "size-2 rounded-full bg-muted-foreground/50";
+      statusText.textContent = "Disconnected";
       break;
     case "failed":
       indicator.className = "size-2 rounded-full bg-destructive";
