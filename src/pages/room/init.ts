@@ -8,7 +8,7 @@ function getRoomCodeFromUrl(): string {
 }
 
 function updateRoomCodeDisplay(roomCode: string) {
-  document.title = `Room ${roomCode} - oop`;
+  document.title = `Room ${roomCode} - glisse`;
   const codeElement = document.querySelector("[data-room-code]");
   if (codeElement) {
     codeElement.textContent = roomCode;

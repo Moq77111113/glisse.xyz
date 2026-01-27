@@ -1,5 +1,5 @@
 {
-  "name": "oop.io",
+  "name": "glisse.xyz",
   "type": "module",
   "scripts": {
     "dev": "bun run dev:server & bun run dev:client",

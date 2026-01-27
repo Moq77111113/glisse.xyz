@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Point search engines to the sitemap
-Sitemap: https://oop.io/sitemap.xml
+Sitemap: https://glisse.xyz/sitemap.xml
