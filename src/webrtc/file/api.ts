@@ -1,6 +1,10 @@
 import { drain } from "../channel/drain";
 import { dataChannelMessage } from "../messaging/schema";
-import { fileProgressBus } from "../session/events";
+import {
+  fileProgressBus,
+  fileSendCompleteBus,
+  fileSendStartBus,
+} from "../session/events";
 import { encodeFileChunk } from "./binary";
 import { chunkFile } from "./chunk";
 
@@ -11,6 +15,8 @@ export function createFileSender(dc: RTCDataChannel) {
     async sendFile(file: File) {
       const fileId = crypto.randomUUID();
       let sentBytes = 0;
+
+      fileSendStartBus.emit({ id: fileId, name: file.name, size: file.size });
 
       dc.send(
         dataChannelMessage({
@@ -32,6 +38,7 @@ export function createFileSender(dc: RTCDataChannel) {
       }
 
       dc.send(dataChannelMessage({ type: "file-end", id: fileId }));
+      fileSendCompleteBus.emit(fileId);
       return fileId;
     },
   };

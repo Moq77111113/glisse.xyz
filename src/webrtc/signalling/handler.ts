@@ -1,6 +1,50 @@
+import { connectionStateBus } from "../session/events";
 import { api, type SignallingAPI } from "./api";
-import { signalingMessage, type SignallingMessage } from "./schema";
+import {
+  signalingMessage,
+  type SignallingMessage,
+  type SignalPayload,
+} from "./schema";
 import type { SignallingContext } from "./types";
+
+async function handleSignalPayload(
+  payload: SignalPayload,
+  ctx: SignallingContext,
+) {
+  const { pc, ws } = ctx;
+
+  if (pc.connectionState === "closed") {
+    return;
+  }
+
+  switch (payload.type) {
+    case "offer":
+      await pc.setRemoteDescription({ type: "offer", sdp: payload.sdp });
+
+      const answer = await pc.createAnswer();
+      if (!answer.sdp) {
+        throw new Error("Failed to create answer SDP");
+      }
+      await pc.setLocalDescription(answer);
+
+      ws.send(
+        signalingMessage({
+          type: "answer",
+          sdp: answer.sdp,
+          peerId: payload.peerId,
+        }),
+      );
+      break;
+
+    case "answer":
+      await pc.setRemoteDescription({ type: "answer", sdp: payload.sdp });
+      break;
+
+    case "ice-candidate":
+      await pc.addIceCandidate(JSON.parse(payload.candidate));
+      break;
+  }
+}
 
 export async function handleMessage(
   msg: SignallingMessage,
@@ -11,8 +55,11 @@ export async function handleMessage(
 
   switch (msg.type) {
     case "peer-joined":
+      if (pc.connectionState === "closed") {
+        ctx.pc = ctx.createPc();
+      }
       ctx.role = "initiator";
-      ctx.dataChannel = pc.createDataChannel("data");
+      ctx.dataChannel = ctx.pc.createDataChannel("data");
 
       const checkAndResolve = () => {
         if (ctx.dataChannel?.readyState === "open") {
@@ -21,10 +68,12 @@ export async function handleMessage(
       };
 
       ctx.dataChannel.onopen = checkAndResolve;
+      ctx.dataChannel.onclose = () => connectionStateBus.emit("disconnected");
+      ctx.dataChannel.onerror = () => connectionStateBus.emit("failed");
       checkAndResolve();
 
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
+      const offer = await ctx.pc.createOffer();
+      await ctx.pc.setLocalDescription(offer);
       if (!offer.sdp) {
         break;
       }
@@ -37,30 +86,13 @@ export async function handleMessage(
       );
       break;
 
-    case "offer":
-      await pc.setRemoteDescription({ type: "offer", sdp: msg.sdp });
-
-      const answer = await pc.createAnswer();
-      if (!answer.sdp) {
-        throw new Error("Failed to create answer SDP");
-      }
-      await pc.setLocalDescription(answer);
-
-      ws.send(
-        signalingMessage({
-          type: "answer",
-          sdp: answer.sdp,
-          peerId: msg.peerId,
-        }),
-      );
+    case "peer-left":
+      connectionStateBus.emit("disconnected");
+      ctx.pc.close();
       break;
 
-    case "answer":
-      await pc.setRemoteDescription({ type: "answer", sdp: msg.sdp });
-      break;
-
-    case "ice-candidate":
-      await pc.addIceCandidate(JSON.parse(msg.candidate));
+    case "signal":
+      await handleSignalPayload(msg.payload, ctx);
       break;
   }
 }

@@ -1,4 +1,11 @@
-import { fileProgressBus, fileReceivedBus } from "~/webrtc";
+import {
+  fileProgressBus,
+  fileReceiveStartBus,
+  fileReceivedBus,
+  fileSendCompleteBus,
+  fileSendStartBus,
+  type FileInfo,
+} from "~/webrtc";
 import type { joinRoom } from "~/webrtc";
 
 type Session = Awaited<ReturnType<typeof joinRoom>>;
@@ -9,33 +16,71 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 }
 
-function addFileItem(
-  list: Element,
-  id: string,
-  name: string,
-  size: number,
-  sending: boolean,
-  blob?: Blob
-) {
+type FileDirection = "send" | "receive";
+
+function createFileItem(
+  info: FileInfo,
+  direction: FileDirection,
+): HTMLElement {
   const item = document.createElement("div");
-  item.dataset.file = id;
-  item.className = "flex items-center gap-3 p-3 border border-border bg-card";
+  item.dataset.file = info.id;
+  item.dataset.direction = direction;
+  item.className =
+    "group flex items-center gap-3 p-3 border border-border bg-card transition-all";
+
+  const arrow = direction === "send" ? "↑" : "↓";
+  const arrowColor =
+    direction === "send" ? "text-primary" : "text-accent";
+  const statusText = direction === "send" ? "Sending..." : "Receiving...";
+
   item.innerHTML = `
-    <span class="font-mono text-sm text-foreground truncate flex-1">${name}</span>
-    <span class="font-mono text-xs text-muted-foreground">${formatBytes(size)}</span>
-    <div class="w-12 h-1 bg-muted-foreground/20 relative">
-      <div data-progress class="h-full bg-primary transition-all" style="width: 0%"></div>
+    <span class="font-mono text-lg ${arrowColor}" data-icon>${arrow}</span>
+    <div class="flex-1 min-w-0">
+      <p class="font-mono text-sm text-foreground truncate">${info.name}</p>
+      <p class="font-mono text-xs text-muted-foreground">${formatBytes(info.size)}</p>
     </div>
-    <span data-status class="font-mono text-xs text-muted-foreground/50">${sending ? "Sending" : "Receiving"}</span>
+    <div class="flex items-center gap-3">
+      <div class="w-16 h-1.5 bg-muted-foreground/20 rounded-full overflow-hidden">
+        <div data-progress class="h-full bg-primary transition-all duration-150 rounded-full" style="width: 0%"></div>
+      </div>
+      <span data-status class="font-mono text-xs text-muted-foreground w-20 text-right">${statusText}</span>
+    </div>
   `;
 
-  const statusEl = item.querySelector<HTMLElement>("[data-status]");
-  const progressEl = item.querySelector<HTMLElement>("[data-progress]");
+  return item;
+}
 
-  if (blob) {
-    item.style.cursor = "pointer";
-    if (statusEl) statusEl.textContent = "Download";
-    if (progressEl) progressEl.style.width = "100%";
+function updateFileComplete(
+  item: HTMLElement,
+  direction: FileDirection,
+  blob?: Blob,
+  name?: string,
+) {
+  const icon = item.querySelector<HTMLElement>("[data-icon]");
+  const progress = item.querySelector<HTMLElement>("[data-progress]");
+  const status = item.querySelector<HTMLElement>("[data-status]");
+
+  if (progress) progress.style.width = "100%";
+
+  if (direction === "send") {
+    if (icon) {
+      icon.textContent = "✓";
+      icon.classList.remove("text-primary");
+      icon.classList.add("text-green-500");
+    }
+    if (status) status.textContent = "Sent";
+    item.classList.add("opacity-60");
+  } else if (blob && name) {
+    if (icon) {
+      icon.textContent = "↓";
+      icon.classList.remove("text-accent");
+      icon.classList.add("text-green-500", "group-hover:scale-110", "transition-transform");
+    }
+    if (status) {
+      status.textContent = "Download";
+      status.classList.add("text-green-500");
+    }
+    item.classList.add("cursor-pointer", "hover:border-green-500/50", "hover:bg-green-500/5");
 
     item.addEventListener("click", () => {
       const link = document.createElement("a");
@@ -43,14 +88,11 @@ function addFileItem(
       link.download = name;
       link.click();
       URL.revokeObjectURL(link.href);
+      if (status) status.textContent = "Downloaded";
+      item.classList.add("opacity-60");
+      item.classList.remove("cursor-pointer", "hover:border-green-500/50", "hover:bg-green-500/5");
     });
-  } else {
-    if (!sending && statusEl) statusEl.textContent = "Receiving";
-    if (sending && statusEl) statusEl.textContent = "Sending";
-    if (progressEl && !sending) progressEl.style.width = "0%";
   }
-
-  list.appendChild(item);
 }
 
 export function setupFileTransfer(session: Session) {
@@ -60,8 +102,6 @@ export function setupFileTransfer(session: Session) {
 
   const handleFiles = (files: FileList) => {
     Array.from(files).forEach((file) => {
-      const id = crypto.randomUUID();
-      addFileItem(list, id, file.name, file.size, true);
       session.sendFile(file);
     });
   };
@@ -76,28 +116,50 @@ export function setupFileTransfer(session: Session) {
 
   zone.addEventListener("dragover", (e) => {
     e.preventDefault();
-    zone.classList.add("border-primary");
+    zone.classList.add("border-primary", "bg-primary/5");
   });
 
   zone.addEventListener("dragleave", () => {
-    zone.classList.remove("border-primary");
+    zone.classList.remove("border-primary", "bg-primary/5");
   });
 
   zone.addEventListener("drop", (e) => {
     e.preventDefault();
-    zone.classList.remove("border-primary");
+    zone.classList.remove("border-primary", "bg-primary/5");
     const dt = e as DragEvent;
     if (dt.dataTransfer?.files) handleFiles(dt.dataTransfer.files);
   });
 
+  fileSendStartBus.subscribe((info) => {
+    const item = createFileItem(info, "send");
+    list.prepend(item);
+  });
+
+  fileSendCompleteBus.subscribe((fileId) => {
+    const item = list.querySelector<HTMLElement>(`[data-file="${fileId}"]`);
+    if (item) updateFileComplete(item, "send");
+  });
+
+  fileReceiveStartBus.subscribe((info) => {
+    const item = createFileItem(info, "receive");
+    list.prepend(item);
+  });
+
   fileProgressBus.subscribe((fileId, percent) => {
     const bar = list.querySelector<HTMLElement>(
-      `[data-file="${fileId}"] [data-progress]`
+      `[data-file="${fileId}"] [data-progress]`,
+    );
+    const status = list.querySelector<HTMLElement>(
+      `[data-file="${fileId}"] [data-status]`,
     );
     if (bar) bar.style.width = `${percent}%`;
+    if (status && percent < 100) status.textContent = `${percent}%`;
   });
 
   fileReceivedBus.subscribe((meta) => {
-    addFileItem(list, meta.id, meta.name, meta.size, false, meta.blob);
+    const item = list.querySelector<HTMLElement>(`[data-file="${meta.id}"]`);
+    if (item) {
+      updateFileComplete(item, "receive", meta.blob, meta.name);
+    }
   });
 }

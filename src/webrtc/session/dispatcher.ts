@@ -1,15 +1,15 @@
 import { decodeFileChunk } from "../file/binary";
 import type { FileReceiver } from "../file/file-receiver";
 import { parseDataChannelMessage } from "../messaging/schema";
-import { fileProgressBus, fileReceivedBus, messageBus } from "./events";
+import {
+  fileProgressBus,
+  fileReceiveStartBus,
+  fileReceivedBus,
+  messageBus,
+} from "./events";
 
-export function createDispatcher(
-  dc: RTCDataChannel,
-  fileReceiver: FileReceiver,
-) {
-  dc.binaryType = "arraybuffer";
-
-  dc.onmessage = (event) => {
+export function createDispatcher(fileReceiver: FileReceiver) {
+  return (event: MessageEvent) => {
     const data = event.data;
 
     if (data instanceof ArrayBuffer) {
@@ -23,7 +23,6 @@ export function createDispatcher(
     }
   };
 }
-
 function handleBinaryChunk(data: ArrayBuffer, receiver: FileReceiver) {
   const { fileId, payload } = decodeFileChunk(data);
   const progress = receiver.addChunk(fileId, payload);
@@ -42,6 +41,11 @@ function handleJsonMessage(data: string, receiver: FileReceiver) {
 
     case "file-start":
       receiver.start(message.id, message.name, message.size);
+      fileReceiveStartBus.emit({
+        id: message.id,
+        name: message.name,
+        size: message.size,
+      });
       break;
 
     case "file-end": {

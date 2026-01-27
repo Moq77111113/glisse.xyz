@@ -7,8 +7,17 @@ function getRoomCodeFromUrl(): string {
   return window.location.pathname.split("/").pop() || "";
 }
 
+function updateRoomCodeDisplay(roomCode: string) {
+  document.title = `Room ${roomCode} - oop`;
+  const codeElement = document.querySelector("[data-room-code]");
+  if (codeElement) {
+    codeElement.textContent = roomCode;
+  }
+}
+
 async function initRoom() {
   const roomCode = getRoomCodeFromUrl();
+  updateRoomCodeDisplay(roomCode);
 
   updateStatus("connecting");
 
