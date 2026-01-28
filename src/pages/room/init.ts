@@ -1,7 +1,7 @@
-import { joinRoom, connectionStateBus } from "~/webrtc";
+import { connectionStateBus, joinRoom } from "~/webrtc";
+import { setupFileTransfer } from "./files";
 import { updateStatus } from "./status";
 import { setupTextSync } from "./text";
-import { setupFileTransfer } from "./files";
 
 function getRoomCodeFromUrl(): string {
   return window.location.pathname.split("/").pop() || "";
@@ -21,18 +21,22 @@ async function initRoom() {
 
   updateStatus("connecting");
 
+  const fileTransferController = setupFileTransfer(null);
+
   connectionStateBus.subscribe((state) => {
     updateStatus(state);
   });
-
+  console.log("Joining room:", roomCode);
   try {
     const session = await joinRoom(roomCode);
-
+    console.log("Joined room successfully");
     setupTextSync(session);
-    setupFileTransfer(session);
+    console.log("Text sync setup complete");
+    fileTransferController?.connectSession(session);
 
     return session;
   } catch {
+    console.log("Failed to join room");
     updateStatus("failed");
     return null;
   }

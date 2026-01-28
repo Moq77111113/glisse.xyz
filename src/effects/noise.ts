@@ -1,14 +1,9 @@
-console.log("[noise] script loaded");
-
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("[noise] DOMContentLoaded fired");
   const canvas = document.getElementById(
     "noise-canvas",
   ) as HTMLCanvasElement | null;
-  console.log("[noise] canvas element:", canvas);
   if (canvas) {
     const ctx = canvas.getContext("2d");
-    console.log("[noise] canvas context:", ctx);
     if (ctx) {
       initNoise(canvas, ctx);
     }
@@ -26,7 +21,6 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
   }[] = [];
 
   try {
-    console.log("[noise] initNoise called, canvas size:", canvas.width, "x", canvas.height);
     const spacing = 40;
     const mouse = { x: 0, y: 0 };
     const targetMouse = { x: 0, y: 0 };
@@ -82,11 +76,8 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     };
 
     init();
-    console.log("[noise] initialized with", points.length, "points");
     animate();
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("resize", init);
-  } catch (error) {
-    console.error("Error in noise effect:", error);
-  }
+  } catch (error) {}
 }
