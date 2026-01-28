@@ -34,16 +34,39 @@ async function handleSignalPayload(
           peerId: payload.peerId,
         }),
       );
+
+      await flushPendingCandidates(ctx);
       break;
 
     case "answer":
       await pc.setRemoteDescription({ type: "answer", sdp: payload.sdp });
+      await flushPendingCandidates(ctx);
       break;
 
     case "ice-candidate":
-      await pc.addIceCandidate(JSON.parse(payload.candidate));
+      const candidate = JSON.parse(payload.candidate);
+      if (!pc.remoteDescription) {
+        ctx.pendingIceCandidates.push(candidate);
+      } else {
+        try {
+          await pc.addIceCandidate(candidate);
+        } catch (error) {
+          console.warn("Failed to add ICE candidate:", error);
+        }
+      }
       break;
   }
+}
+
+async function flushPendingCandidates(ctx: SignallingContext) {
+  for (const candidate of ctx.pendingIceCandidates) {
+    try {
+      await ctx.pc.addIceCandidate(candidate);
+    } catch (error) {
+      console.warn("Failed to add queued ICE candidate:", error);
+    }
+  }
+  ctx.pendingIceCandidates.length = 0;
 }
 
 export async function handleMessage(
@@ -56,6 +79,7 @@ export async function handleMessage(
   switch (msg.type) {
     case "peer-joined":
       if (pc.connectionState === "closed") {
+        ctx.pendingIceCandidates.length = 0;
         ctx.pc = await ctx.createPc();
       }
       ctx.role = "initiator";
@@ -65,7 +89,6 @@ export async function handleMessage(
         if (ctx.dataChannel?.readyState === "open") {
           resolve(api(ctx));
           connectionStateBus.emit("peer-to-peer");
-          ws.close();
         }
       };
 

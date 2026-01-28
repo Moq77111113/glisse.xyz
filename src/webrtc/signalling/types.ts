@@ -6,4 +6,5 @@ export interface SignallingContext {
   role: Role;
   dataChannel?: RTCDataChannel;
   createPc: () => Promise<RTCPeerConnection>;
+  pendingIceCandidates: RTCIceCandidateInit[];
 }
