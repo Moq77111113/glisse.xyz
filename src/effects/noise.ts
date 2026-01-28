@@ -24,6 +24,7 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     const spacing = 40;
     const mouse = { x: 0, y: 0 };
     const targetMouse = { x: 0, y: 0 };
+    let time = 0;
 
     const init = () => {
       canvas.width = window.innerWidth;
@@ -42,7 +43,9 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
       mouse.y += (targetMouse.y - mouse.y) * 0.05;
       ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
 
-      points.forEach((p) => {
+      time += 0.01;
+
+      points.forEach((p, i) => {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -55,8 +58,11 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
           p.vy += Math.sin(angle) * force * 0.5;
         }
 
-        p.vx += (p.ox - p.x) * 0.05;
-        p.vy += (p.oy - p.y) * 0.05;
+        const ambientX = Math.sin(time + i * 0.1) * 0.3;
+        const ambientY = Math.cos(time + i * 0.15) * 0.3;
+
+        p.vx += (p.ox - p.x + ambientX) * 0.05;
+        p.vy += (p.oy - p.y + ambientY) * 0.05;
         p.vx *= 0.92;
         p.vy *= 0.92;
         p.x += p.vx;
@@ -75,9 +81,17 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
       targetMouse.y = e.clientY;
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        targetMouse.x = e.touches[0].clientX;
+        targetMouse.y = e.touches[0].clientY;
+      }
+    };
+
     init();
     animate();
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
     window.addEventListener("resize", init);
   } catch (error) {}
 }
