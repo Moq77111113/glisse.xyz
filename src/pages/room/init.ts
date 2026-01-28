@@ -26,17 +26,13 @@ async function initRoom() {
   connectionStateBus.subscribe((state) => {
     updateStatus(state);
   });
-  console.log("Joining room:", roomCode);
   try {
     const session = await joinRoom(roomCode);
-    console.log("Joined room successfully");
     setupTextSync(session);
-    console.log("Text sync setup complete");
     fileTransferController?.connectSession(session);
 
     return session;
   } catch {
-    console.log("Failed to join room");
     updateStatus("failed");
     return null;
   }

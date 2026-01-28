@@ -5,5 +5,5 @@ export interface SignallingContext {
   ws: WebSocket;
   role: Role;
   dataChannel?: RTCDataChannel;
-  createPc: () => RTCPeerConnection;
+  createPc: () => Promise<RTCPeerConnection>;
 }

@@ -54,6 +54,35 @@ Dockerfile included for the container enthusiasts.
 - Native WebRTC
 - No frameworks, no state management, no PhD required
 
+## Self-Hosting
+
+### STUN Servers
+
+By default, glisse uses Google's public STUN servers for WebRTC NAT traversal. If you're self-hosting and want to use your own STUN servers, set the `STUN_SERVERS` environment variable:
+
+```bash
+# Single server
+export STUN_SERVERS="stun:stun.yourdomain.com:3478"
+
+# Multiple servers (comma-separated)
+export STUN_SERVERS="stun:stun1.yourdomain.com:3478,stun:stun2.yourdomain.com:3478"
+```
+
+**Docker:**
+
+```yaml
+version: '3'
+services:
+  glisse:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - STUN_SERVERS=stun:stun.yourdomain.com:3478
+```
+
+**Note on TURN servers:** For networks behind restrictive NAT/firewalls, you might need TURN servers (relay servers). This isn't implemented yet, but STUN works fine for most cases (~80% of connections).
+
 ## License
 
 MIT. Do whatever. Free as in freedom, free as in beer 🍺.

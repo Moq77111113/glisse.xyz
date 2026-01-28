@@ -6,10 +6,35 @@ import { parseSignallingMessage, signalingMessage } from "./schema";
 import type { SignallingContext } from "./types";
 import { createWsConnection } from "./ws";
 
-const ICE_SERVERS: RTCIceServer[] = [
-  { urls: "stun:stun.l.google.com:19302" },
-  { urls: "stun:stun1.l.google.com:19302" },
+const DEFAULT_STUN_SERVERS = [
+  "stun:stun.l.google.com:19302",
+  "stun:stun1.l.google.com:19302",
 ];
+
+const cachedStunServers = new Set<string>();
+
+async function fetchStunServers(): Promise<string[]> {
+  if (cachedStunServers.size > 0) {
+    return Promise.resolve(Array.from(cachedStunServers));
+  }
+  try {
+    const response = await fetch("/api/config");
+    const data = await response.json();
+
+    cachedStunServers.clear();
+    for (const server of data.stunServers ?? DEFAULT_STUN_SERVERS) {
+      cachedStunServers.add(server);
+    }
+    return Array.from(cachedStunServers);
+  } catch (e) {
+    return DEFAULT_STUN_SERVERS;
+  }
+}
+
+async function getIceServers(): Promise<RTCIceServer[]> {
+  const stunServers = await fetchStunServers();
+  return stunServers.map((urls) => ({ urls }));
+}
 
 function getSignallingUrl(): { url: string; protocol: "ws" | "wss" } {
   const isSecure = window.location.protocol === "https:";
@@ -74,14 +99,15 @@ export async function createSignallingApi(
     };
   };
 
-  const createPc = () => {
-    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+  const createPc = async () => {
+    const iceServers = await getIceServers();
+    const pc = new RTCPeerConnection({ iceServers });
     setupPcHandlers(pc);
     return pc;
   };
 
   const ctx: SignallingContext = {
-    pc: createPc(),
+    pc: await createPc(),
     ws,
     role: "responder",
     createPc,

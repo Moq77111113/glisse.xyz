@@ -50,8 +50,7 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
       ctx.fillStyle = getNoiseColor();
 
       time += 0.01;
-
-      points.forEach((p, i) => {
+      for (const [i, p] of points.entries()) {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -77,7 +76,7 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, 0.8, 0, Math.PI * 2);
         ctx.fill();
-      });
+      }
 
       requestAnimationFrame(animate);
     };

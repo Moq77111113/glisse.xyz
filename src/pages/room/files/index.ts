@@ -26,14 +26,16 @@ export function setupFileTransfer(session: Session | null) {
   const handleFiles = (files: FileList) => {
     const fileArray = Array.from(files);
     if (session) {
-      fileArray.forEach((file) => session?.sendFile(file));
+      for (const file of fileArray) {
+        session?.sendFile(file);
+      }
     } else {
-      fileArray.forEach((file) => {
+      for (const file of fileArray) {
         pendingFiles.push(file);
         const item = createPendingFileItem(file);
         pendingItems.set(file, item);
         list.prepend(item);
-      });
+      }
     }
   };
 
@@ -78,14 +80,14 @@ export function setupFileTransfer(session: Session | null) {
     connectSession: (connectedSession: Session) => {
       session = connectedSession;
       setupEventListeners();
-      pendingFiles.forEach((file) => {
+      for (const file of pendingFiles) {
         const pendingItem = pendingItems.get(file);
         if (pendingItem) {
           pendingItem.remove();
           pendingItems.delete(file);
         }
         connectedSession.sendFile(file);
-      });
+      }
       pendingFiles.length = 0;
     },
   };

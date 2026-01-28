@@ -14,20 +14,22 @@ export type ConnectionState =
 export type ConnectionStateHandler = (state: ConnectionState) => void;
 
 function createEventBus<T extends (...args: never[]) => void>() {
-  const listeners = new Set<T>()
+  const listeners = new Set<T>();
 
   return {
     subscribe(handler: T): () => void {
-      listeners.add(handler)
-      return () => listeners.delete(handler)
+      listeners.add(handler);
+      return () => listeners.delete(handler);
     },
     emit(...args: Parameters<T>) {
-      listeners.forEach((handler) => handler(...args))
+      for (const handler of listeners) {
+        handler(...args);
+      }
     },
     clear() {
-      listeners.clear()
+      listeners.clear();
     },
-  }
+  };
 }
 
 export const messageBus = createEventBus<MessageHandler>();

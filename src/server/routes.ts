@@ -1,6 +1,7 @@
 import type { Server } from "bun";
 import { Hono } from "hono";
 import { dirname, join } from "path";
+import { config } from "./config";
 
 type WebSocketData = {
   roomCode: string;
@@ -26,6 +27,7 @@ function transformHtml(html: string): string {
   return html
     .replace(/\/src\/style\.css/g, "/assets/style.css")
     .replace(/\/src\/effects\/noise\.ts/g, "/assets/noise.js")
+    .replace(/\/src\/effects\/theme\.ts/g, "/assets/theme.js")
     .replace(/\/src\/pages\/lobby\.ts/g, "/assets/lobby.js")
     .replace(/\/src\/pages\/room\/init\.ts/g, "/assets/room.js");
 }
@@ -64,6 +66,10 @@ routes.get("/r/:roomCode", (c) => {
 
 routes.get("/about", (c) => {
   return c.html(about);
+});
+
+routes.get("/api/config", (c) => {
+  return c.json({ stunServers: config.stunServers });
 });
 
 routes.get("/ws/:roomCode", async (c) => {

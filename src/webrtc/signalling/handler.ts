@@ -56,7 +56,7 @@ export async function handleMessage(
   switch (msg.type) {
     case "peer-joined":
       if (pc.connectionState === "closed") {
-        ctx.pc = ctx.createPc();
+        ctx.pc = await ctx.createPc();
       }
       ctx.role = "initiator";
       ctx.dataChannel = ctx.pc.createDataChannel("data");
