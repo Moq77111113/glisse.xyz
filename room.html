@@ -172,17 +172,30 @@
       </div>
 
       <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-        <div class="space-y-4">
+        <div class="space-y-4 flex flex-col h-64 lg:h-96">
           <p
             class="font-mono text-xs text-muted-foreground uppercase tracking-[0.2em]"
           >
-            Text
+            Chat
           </p>
-          <textarea
-            data-text-area
-            placeholder="Type or paste..."
-            class="w-full h-64 lg:h-96 bg-transparent border border-border p-4 font-mono text-sm text-foreground placeholder:text-muted-foreground/30 resize-none focus:outline-none focus:border-primary transition-colors"
-          ></textarea>
+          <div
+            data-chat-messages
+            class="flex-1 border border-border bg-card/30 p-4 overflow-y-auto flex flex-col gap-2"
+          ></div>
+          <div class="flex gap-2">
+            <input
+              type="text"
+              data-chat-input
+              placeholder="Type a message..."
+              class="flex-1 bg-transparent border border-border rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary transition-colors"
+            />
+            <button
+              data-chat-send
+              class="px-6 py-2 bg-primary text-primary-foreground text-sm rounded-full hover:opacity-90 transition-opacity"
+            >
+              Send
+            </button>
+          </div>
         </div>
 
         <div class="space-y-4">

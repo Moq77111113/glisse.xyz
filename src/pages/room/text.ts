@@ -8,14 +8,28 @@ export function setupTextSync(session: Session) {
   if (!textarea) return;
 
   let timeout: number | null = null;
+  let lastSentValue = "";
+  let lastReceivedValue = "";
 
   textarea.addEventListener("input", () => {
     if (timeout) clearTimeout(timeout);
-    timeout = window.setTimeout(() => session.sendMessage(textarea.value), 300);
+    timeout = window.setTimeout(() => {
+      const value = textarea.value;
+      if (value !== lastSentValue && value !== lastReceivedValue) {
+        lastSentValue = value;
+        session.sendMessage(value);
+      }
+    }, 300);
   });
 
   messageBus.subscribe((text) => {
-    if (document.activeElement !== textarea) {
+    lastReceivedValue = text;
+
+    if (text === lastSentValue) return;
+
+    const isTyping = document.activeElement === textarea;
+
+    if (!isTyping) {
       textarea.value = text;
     }
   });
