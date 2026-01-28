@@ -88,7 +88,6 @@ export async function createSignallingApi(
         if (e.channel.readyState === "open") {
           resolveApi(api(ctx));
           connectionStateBus.emit("peer-to-peer");
-          ctx.ws.close();
         }
       };
 
@@ -111,6 +110,7 @@ export async function createSignallingApi(
     ws,
     role: "responder",
     createPc,
+    pendingIceCandidates: [],
   };
 
   return new Promise<SignallingAPI>((resolve) => {
