@@ -64,6 +64,8 @@ export async function handleMessage(
       const checkAndResolve = () => {
         if (ctx.dataChannel?.readyState === "open") {
           resolve(api(ctx));
+          connectionStateBus.emit("peer-to-peer");
+          ws.close();
         }
       };
 

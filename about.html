@@ -82,8 +82,8 @@
           <p class="text-base leading-relaxed">
             glisse is a lightweight web app that lets people share files and
             text directly between browsers. The goal is simple: make private,
-            peer-to-peer transfers easy and ephemeral — no file storage, no
-            accounts.
+            peer-to-peer transfers easy and ephemeral—no cloud storage, no
+            accounts, no friction.
           </p>
         </section>
 
@@ -127,9 +127,9 @@
             How many times have you emailed a file to yourself, or sent it via a
             messaging app just to move it between devices? glisse exists to
             simplify that exact workflow: quick, direct device-to-device
-            transfers without accounts or persistent storage. Start a session in
-            each browser, connect peers, and send files directly — end-to-end
-            encrypted and ephemeral.
+            transfers without accounts or cloud storage. Start a session in
+            each browser, connect via a room code, and send files directly using
+            WebRTC—encrypted automatically and completely ephemeral.
           </p>
         </section>
 
@@ -140,10 +140,28 @@
             Quick notes
           </h2>
           <ul class="list-disc ml-6 space-y-1">
-            <li>No accounts or persistent storage.</li>
-            <li>Files flow peer-to-peer via WebRTC data channels.</li>
-            <li>Signalling server only coordinates connections.</li>
+            <li>No accounts, no storage, no cloud.</li>
+            <li>Files transfer peer-to-peer (browser to browser).</li>
+            <li>Server coordinates the handshake, then disconnects.</li>
+            <li>Connection becomes fully peer-to-peer once established.</li>
+            <li>WebRTC encrypts transfers automatically (DTLS).</li>
           </ul>
+        </section>
+
+        <section class="space-y-2">
+          <h2
+            class="font-mono text-sm uppercase text-muted-foreground tracking-wider"
+          >
+            How it stays private
+          </h2>
+          <p class="text-base leading-relaxed">
+            WebRTC encrypts file transfers automatically using DTLS, the same
+            technology that secures video calls. Your files travel directly
+            between browsers—the server coordinates the initial connection,
+            then disconnects automatically. Once peer-to-peer, the connection
+            is fully independent. You trust the server operator not to serve
+            malicious code, just like any website.
+          </p>
         </section>
 
         <section class="space-y-2">

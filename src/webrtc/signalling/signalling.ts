@@ -62,6 +62,8 @@ export async function createSignallingApi(
       const checkAndResolve = () => {
         if (e.channel.readyState === "open") {
           resolveApi(api(ctx));
+          connectionStateBus.emit("peer-to-peer");
+          ctx.ws.close();
         }
       };
 

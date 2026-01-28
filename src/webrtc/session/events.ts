@@ -9,7 +9,8 @@ export type ConnectionState =
   | "connecting"
   | "connected"
   | "disconnected"
-  | "failed";
+  | "failed"
+  | "peer-to-peer";
 export type ConnectionStateHandler = (state: ConnectionState) => void;
 
 function createEventBus<T extends (...args: never[]) => void>() {
