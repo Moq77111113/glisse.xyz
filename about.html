@@ -189,7 +189,7 @@
           <ul class="list-disc ml-6 space-y-1">
             <li>No accounts, no storage, no cloud.</li>
             <li>Files transfer peer-to-peer (browser to browser).</li>
-            <li>Server coordinates the handshake, then disconnects.</li>
+            <li>Server handles signaling and enables automatic reconnection.</li>
             <li>Connection becomes fully peer-to-peer once established.</li>
             <li>WebRTC encrypts transfers automatically (DTLS).</li>
           </ul>
@@ -204,10 +204,10 @@
           <p class="text-base leading-relaxed">
             WebRTC encrypts file transfers automatically using DTLS, the same
             technology that secures video calls. Your files travel directly
-            between browsers—the server coordinates the initial connection,
-            then disconnects automatically. Once peer-to-peer, the connection
-            is fully independent. You trust the server operator not to serve
-            malicious code, just like any website.
+            between browsers—the server handles signaling and enables automatic
+            reconnection if either peer refreshes. Once peer-to-peer, the data
+            connection is fully independent. You trust the server operator not
+            to serve malicious code, just like any website.
           </p>
         </section>
 

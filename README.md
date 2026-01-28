@@ -15,7 +15,7 @@ Glisse fixes that. Browser to browser. The short route.
 
 Done. That's literally it.
 
-No apps, no accounts, no cloud storage. Files travel browser-to-browser via WebRTC. The server plays matchmaker, then politely exits stage left—your files never touch it, and the connection becomes fully peer-to-peer. Encrypted automatically by your browser's built-in DTLS (fancy cryptography that just works™).
+No apps, no accounts, no cloud storage. Files travel browser-to-browser via WebRTC. The server handles signaling and enables reconnection if either peer refreshes—your files never touch it, and the connection becomes fully peer-to-peer. Encrypted automatically by your browser's built-in DTLS (fancy cryptography that just works™).
 
 ## Try it locally
 
