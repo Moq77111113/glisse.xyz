@@ -26,6 +26,12 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     const targetMouse = { x: 0, y: 0 };
     let time = 0;
 
+    const getNoiseColor = () => {
+      return getComputedStyle(document.documentElement)
+        .getPropertyValue("--secondary-foreground")
+        .trim();
+    };
+
     const init = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -41,7 +47,7 @@ function initNoise(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       mouse.x += (targetMouse.x - mouse.x) * 0.05;
       mouse.y += (targetMouse.y - mouse.y) * 0.05;
-      ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+      ctx.fillStyle = getNoiseColor();
 
       time += 0.01;
 
