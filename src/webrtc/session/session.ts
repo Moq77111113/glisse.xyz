@@ -18,7 +18,7 @@ export async function joinRoom(roomCode: string) {
   dc.onmessage = createDispatcher(fileReceiver);
 
   const messaging = createMessageSender(dc);
-  const fileSender = createFileSender(dc);
+  const fileSender = createFileSender(dc, signalling.peerConnection);
 
   const close = () => {
     clearAllListeners();
