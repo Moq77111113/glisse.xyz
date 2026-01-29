@@ -1,25 +1,55 @@
 # Glisse
 
-Send files, no cloud, no accounts, no existential dread.
 
-Ever emailed yourself a file just to get it from one device to another? Both devices are on the same WiFi, probably within arm's reach… yet your file took a scenic tour through several data centers on different continents.
+![Glisse demo](./demo.gif)
 
-Glisse fixes that. Browser to browser. The short route.
+**The shortest path between two devices.**
+
+Send files and text directly from one browser to another.  
+No cloud. No accounts. No sync rituals. No files taking a gap year in five data centers.
+
+If your file goes through a server, it’s already too late.
+
+## What is Glisse?
+
+Glisse is a tiny web app for sharing files and text **directly** between two devices.  
+Browser to browser. Peer to peer. No middlemen with trust issues.
+
+No installs. No sign-ups. No storage. Nothing to configure.  
+Open a page, get a code, and glide your files across.
+
+It does exactly what you expect.  
+And nothing you don’t.
+
 
 ## Magic in 4 Characters
 
-1. Open a browser
-2. Get a 4-character code
-3. Share it
-4. Drop files or paste text
+1. Open a browser  
+2. Get a 4-character code  
+3. Share it  
+4. Drop files or paste text  
 
-Done. That's literally it.
+Done.
 
-No apps, no accounts, no cloud storage. Files travel browser-to-browser via WebRTC. The server handles signaling and enables reconnection if either peer refreshes—your files never touch it, and the connection becomes fully peer-to-peer. Encrypted automatically by your browser's built-in DTLS (fancy cryptography that just works™).
+That’s not the “quick start”.  
+That *is* the product.
 
-## Try it locally
 
-**Needs:** [Bun](https://bun.sh)
+## How It Works (No Marketing Fog)
+
+- Uses **WebRTC** for direct browser-to-browser connections  
+- The server only handles **signaling** and **reconnection**  
+- Your files **never touch the server**  
+- Once connected, everything is fully **peer-to-peer**  
+- Encryption is automatic via **DTLS**, built into your browser  
+
+No plugins. No trackers. No “enterprise-grade” promises.  
+Just the shortest possible path between two devices.
+
+
+## Try It Locally
+
+**Needs:** Bun
 
 ```bash
 git clone https://github.com/Moq77111113/glisse.xyz.git
@@ -30,35 +60,44 @@ bun run dev
 
 Open `http://localhost:5173` in two tabs. Pretend you have friends. Send something. Watch the magic.
 
-**Production:**
+## Production
 
 ```bash
 bun run build
-bun run start 
+bun run start
 ```
 
-Dockerfile included for the container enthusiasts.
+A `Dockerfile` is included for people who feel safer when everything runs inside a box.
 
-## MVP Status
+## MVP Status (Read This)
 
-- 2 people per room (minimalism, not a bug)
-- No fancy error toasts (refresh fixes most things)
-- Rooms in memory (server restart = collective amnesia)
-- Large files? Theoretically unlimited. Realistically, your patience might run out first.
+* **2 people per room** — minimalism, not a bug
+* **No fancy error handling** — refresh fixes most things
+* **Rooms live in memory** — server restart = collective amnesia
+* **Large files** — theoretically unlimited; realistically limited by your patience
+
+This is a tool.
+Not a platform. Not a lifestyle.
+
 
 ## Tech Stack
 
-- HTML + vanilla TypeScript
-- TailwindCSS
-- Bun + Hono backend
-- Native WebRTC
-- No frameworks, no state management, no PhD required
+* HTML + vanilla TypeScript
+* TailwindCSS
+* Bun + Hono (backend)
+* Native WebRTC
+
+No frameworks.
+No global state.
+No PhD required.
+
 
 ## Self-Hosting
 
 ### STUN Servers
 
-By default, glisse uses Google's public STUN servers for WebRTC NAT traversal. If you're self-hosting and want to use your own STUN servers, set the `STUN_SERVERS` environment variable:
+By default, Glisse uses Google’s public STUN servers for WebRTC NAT traversal.
+If you want to use your own, set the `STUN_SERVERS` environment variable:
 
 ```bash
 # Single server
@@ -68,7 +107,7 @@ export STUN_SERVERS="stun:stun.yourdomain.com:3478"
 export STUN_SERVERS="stun:stun1.yourdomain.com:3478,stun:stun2.yourdomain.com:3478"
 ```
 
-**Docker:**
+### Docker
 
 ```yaml
 version: '3'
@@ -81,7 +120,26 @@ services:
       - STUN_SERVERS=stun:stun.yourdomain.com:3478
 ```
 
-**Note on TURN servers:** For networks behind restrictive NAT/firewalls, you might need TURN servers (relay servers). This isn't implemented yet, but STUN works fine for most cases (~80% of connections).
+### TURN Servers
+
+For very restrictive networks (angry firewalls, paranoid NATs), TURN servers may be required.
+They are **not implemented yet**.
+
+STUN works fine in most cases (~80% of connections).
+The other 20% are… special.
+
+## What Glisse Is *Not*
+
+* Not a cloud drive
+* Not a collaboration suite
+* Not a startup pitch deck
+* Not trying to keep your data
+* Not interested in your email address
+
+It does one thing.
+It does it fast.
+Then it gets out of your way.
+
 
 ## License
 
