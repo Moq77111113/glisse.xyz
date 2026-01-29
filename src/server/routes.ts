@@ -20,24 +20,11 @@ function generateRoomCode(): string {
     .join("");
 }
 
-function transformHtml(html: string): string {
-  if (process.env.NODE_ENV !== "production") {
-    return html;
-  }
-  return html
-    .replace(/\/src\/style\.css/g, "/assets/style.css")
-    .replace(/\/src\/pages\/lobby\.ts/g, "/assets/lobby.js")
-    .replace(/\/src\/pages\/room\/init\.ts/g, "/assets/room.js");
-}
-
 const rootDir = join(dirname(import.meta.path), "../..");
-const indexHtml = transformHtml(
-  await Bun.file(join(rootDir, "index.html")).text(),
-);
-const roomHtml = transformHtml(
-  await Bun.file(join(rootDir, "room.html")).text(),
-);
-const about = transformHtml(await Bun.file(join(rootDir, "about.html")).text());
+
+const indexHtml = await Bun.file(join(rootDir, "index.html")).text();
+const roomHtml = await Bun.file(join(rootDir, "room.html")).text();
+const about = await Bun.file(join(rootDir, "about.html")).text();
 
 routes.get("/", (c) => {
   return c.html(indexHtml);

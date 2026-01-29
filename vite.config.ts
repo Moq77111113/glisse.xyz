@@ -48,8 +48,9 @@ export default defineConfig({
     outDir: "dist/client",
     rollupOptions: {
       input: {
-        lobby: path.resolve(__dirname, "src/pages/lobby.ts"),
-        room: path.resolve(__dirname, "src/pages/room/init.ts"),
+        index: path.resolve(__dirname, "index.html"),
+        room: path.resolve(__dirname, "room.html"),
+        about: path.resolve(__dirname, "about.html"),
         style: path.resolve(__dirname, "src/style.css"),
       },
       output: {
