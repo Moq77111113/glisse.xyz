@@ -26,8 +26,6 @@ function transformHtml(html: string): string {
   }
   return html
     .replace(/\/src\/style\.css/g, "/assets/style.css")
-    .replace(/\/src\/effects\/noise\.ts/g, "/assets/noise.js")
-    .replace(/\/src\/effects\/theme\.ts/g, "/assets/theme.js")
     .replace(/\/src\/pages\/lobby\.ts/g, "/assets/lobby.js")
     .replace(/\/src\/pages\/room\/init\.ts/g, "/assets/room.js");
 }

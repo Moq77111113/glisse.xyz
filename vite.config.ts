@@ -50,8 +50,6 @@ export default defineConfig({
       input: {
         lobby: path.resolve(__dirname, "src/pages/lobby.ts"),
         room: path.resolve(__dirname, "src/pages/room/init.ts"),
-        noise: path.resolve(__dirname, "src/effects/noise.ts"),
-        theme: path.resolve(__dirname, "src/effects/theme.ts"),
         style: path.resolve(__dirname, "src/style.css"),
       },
       output: {

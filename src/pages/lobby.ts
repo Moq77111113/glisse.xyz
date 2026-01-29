@@ -1,3 +1,5 @@
+import "~/components";
+
 function setupPinInputs() {
   const container = document.querySelector("[data-pin-container]");
   const form = document.getElementById("join-form") as HTMLFormElement;
