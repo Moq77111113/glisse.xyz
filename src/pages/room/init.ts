@@ -1,3 +1,5 @@
+import "~/components";
+
 import type { Session } from "~/webrtc";
 import { connectionStateBus, joinRoom } from "~/webrtc";
 
